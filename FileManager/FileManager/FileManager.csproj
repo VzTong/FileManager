@@ -7,7 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\lib\" />
+    <Compile Remove="wwwroot\upload\test1\level1_2\level2\**" />
+    <Compile Remove="wwwroot\upload\test1\NewFolder\**" />
+    <Content Remove="wwwroot\upload\test1\level1_2\level2\**" />
+    <Content Remove="wwwroot\upload\test1\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\upload\test1\level1_2\level2\**" />
+    <EmbeddedResource Remove="wwwroot\upload\test1\NewFolder\**" />
+    <None Remove="wwwroot\upload\test1\level1_2\level2\**" />
+    <None Remove="wwwroot\upload\test1\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="compilerconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="compilerconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\filemanager\icon\" />
+    <Folder Include="wwwroot\upload\test1\level1_2\" />
+    <Folder Include="wwwroot\upload\test2\" />
+    <Folder Include="wwwroot\upload\test1\level1\" />
   </ItemGroup>
 
 </Project>

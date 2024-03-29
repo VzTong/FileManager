@@ -1,8 +1,70 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>FileManager - Home</title>
+	<link rel="icon" href="~/folder-manager-32px.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link href="~/lib/filemanager/css/filemanager.min.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body x-data="filedata">
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+	<div class="container">
+		<div class="filemanager">
+
+			@* Thanh công cụ *@
+			<div class="fm-toolbox">
+				<button class="btn-danger" x-on:click="deletedSelectedItem()">🗑️</button>
+				<button class="btn-success" x-on:click="openFolderUpdinPopup()">🗂️+</button>
+			</div>
+
+			@* Cây thư mục *@
+			<div class="fm-folder-tree">
+				<li class="folder-level-0" style="list-style-type: none;" x-on:click="getAllInDir('', -1)">
+					<span>📂Thư mục gốc</span>
+				</li>
+				<template x-for="(f, idx) in _folderTree">
+					<ul>
+						<li :class="{...f.cssClass, selected: idx == _folderTreeSelectedIndex}" x-on:click="getAllInDir(f.fullPath, idx)">
+							<button class="btn-toggle" x-text="f.isOpen ? '📂' : '📁'" x-on:click.stop="toggleFolder(idx)"></button>
+							<span x-text="f.folderName"></span>
+						</li>
+					</ul>
+				</template>
+			</div>
+
+			@* Phần chính, hiển thị file và các công cụ *@
+			<div class="fm-main-panel">
+				<template x-for="(f, idx) in _panelData">
+					<div class="panel-item" :class="{selected: _panelItemSelectedIndex == idx}" x-on:click="setSelectedItem(f, idx)">
+						<img :src="getIcon(f.isFolder)" />
+						<span x-text="f.name"></span>
+					</div>
+				</template>
+			</div>
+
+			@* Thông tin bổ sung *@
+			<div class="fm-additional-info">
+				<span x-text="_additionalInfo.selectedText"></span>
+			</div>
+
+			<div class="fm-folder-updin-popup" :class="{show: _folderUpdinPopup.show}">
+				<div class="popup-main">
+					<div> 
+						<label>Tên thư mục</label>
+						<input class="form-control" type="text" x-model="_folderUpdinPopup.value" />
+					</div>
+					<div>
+						<button class="btn-success" x-on:click="updinFolder()">Lưu</button>
+						<button class="btn-danger" x-on:click="closeFolderUpdinPopup()">Hủy</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script defer src="~/lib/alpinejs/cdn.min.js"></script>
+	<script src="~/lib/filemanager/js/filemanager.js" asp-append-version="true"></script>
+</body>
+</html>
