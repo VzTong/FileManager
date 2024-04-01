@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\lib\filemanager\icon\" />
     <Folder Include="wwwroot\upload\test1\level1_2\" />
     <Folder Include="wwwroot\upload\test2\" />
     <Folder Include="wwwroot\upload\test1\level1\" />

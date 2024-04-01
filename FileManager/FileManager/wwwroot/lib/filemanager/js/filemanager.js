@@ -42,7 +42,7 @@ document.addEventListener("alpine:init", () => {
             {
                 path: '',
                 name: '',
-                isFoder: false
+                isFolder: false
             }
         ],
 
@@ -157,7 +157,7 @@ document.addEventListener("alpine:init", () => {
                 .then(res => res.json())
                 .then(json => {
                     if (json.success) {
-                        let isFolder = this._panelData[idx].isFoder;
+                        let isFolder = this._panelData[idx].isFolder;
                         let fullPath = this._panelData[idx].path;
                         // Xóa item được chọn khỏi panelData
                         this._panelData.splice(idx, 1);
@@ -165,7 +165,8 @@ document.addEventListener("alpine:init", () => {
                         // Xóa khỏi cây thư mục nếu là folder
                         if (isFolder) {
                             // Tìm lại index trên cây thư mục
-                            idx = this._folderTree.findIndex(item => item.fullPath == fullPath);
+                            let starstIdx = this._folderTree.findIndex(item => item.fullPath == fullPath);
+                            idx = starstIdx;
                             if (idx >= 0) {
                                 let level = this._folderTree[idx].level;
                                 let cntDel = 1;
@@ -174,7 +175,7 @@ document.addEventListener("alpine:init", () => {
                                     idx++;
                                 }
 
-                                this._folderTree.splice(idx, cntDel);
+                                this._folderTree.splice(starstIdx, cntDel);
                             }
                         }
                         this._folderTreeSelectedIndex = -1;
@@ -184,6 +185,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         openFolderUpdinPopup() {
+            // Hiển thị popup và đặt giá trị mặc định
             this._folderUpdinPopup.show = true;
             this._folderUpdinPopup.value = 'NewFolder';
         },
@@ -211,8 +213,29 @@ document.addEventListener("alpine:init", () => {
                 .then(res => res.json())
                 .then(json => {
                     if (json.success) {
-                        // Xử lý thêm
-                        location.reload();
+                        // Thêm vào panel - ko cần reload
+                        var panelItem = {
+                            path: newFolderPath,
+                            name: newFolderName,
+                            isFolder: true
+                        };
+                        this._panelData.unshift(panelItem);
+
+                        // Thêm vào cây thư mục - ko cần reload
+                        var folderTreeItem = {
+                            fullPath: newFolderPath,
+                            level: this._folderTree[i].level + 1,
+                            folderName: newFolderName,
+                            isOpen: false,
+                            cssClass: {
+                                [`folder-level-${this._folderTree[i].level + 1}`]: true,
+                                show: this._folderTree[i].isOpen,
+                            },
+                        };
+                        this._folderTree.splice(i + 1, 0, folderTreeItem);
+
+                        // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
+                        this.closeFolderUpdinPopup();
                     } else {
                         alert(json.message);
                     }
