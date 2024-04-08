@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FileManager.Controllers
 {
+	// Định nghĩa controller trả về API chứ ko trả về View <=> Attribute
 	[ApiController]
 	[Route("filemanager")]
 	public class FilerManagerController : Controller

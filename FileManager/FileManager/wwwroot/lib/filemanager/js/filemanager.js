@@ -205,8 +205,10 @@ document.addEventListener("alpine:init", () => {
 
             if (i == -1) {
                 newFolderPath = newFolderName;
-            } else{
-                 newFolderPath = this._folderTree[i].fullPath + "\\" + newFolderName;
+                // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
+                this.closeFolderUpdinPopup();
+            } else {
+                newFolderPath = this._folderTree[i].fullPath + "\\" + newFolderName;
             }
             this._setting.setParams("ADD_NEW_ITEM", newFolderPath);
             fetch(this._setting.getUrl())
@@ -240,6 +242,27 @@ document.addEventListener("alpine:init", () => {
                         alert(json.message);
                     }
                 })
+        },
+
+        uploadFile() {
+            let fileUploadEle = this.$el.parentElement.querySelector("input[fm-file-upload]");
+
+            if (!fileUploadEle.files.length) {
+                alert("Chưa chọn file!!!");
+                return;
+            }
+
+            let file = fileUploadEle.files[0];
+            let data = new FormData();
+            data.append("FILE_UPLOAD", file, file.name);
+
+            let i = this._folderTreeSelectedIndex;
+            this._setting.setParams("UPLOAD", this._folderTree[i].fullPath);
+            fetch(this._setting.getUrl(), {
+                method: 'POST',
+                body: data
+            })
+                .then(res => location.reload());
         }
     }))
 });

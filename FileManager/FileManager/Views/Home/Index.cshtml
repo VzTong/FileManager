@@ -15,15 +15,17 @@
 
 			@* Thanh công cụ *@
 			<div class="fm-toolbox">
-				<button class="btn-danger" x-on:click="deletedSelectedItem()">🗑️</button>
+				<input class="file" fm-file-upload type="file" />
+				<button class="btn-success" x-on:click="uploadFile()">👆Tải file lên</button>
 				<button class="btn-success" x-on:click="openFolderUpdinPopup()">🗂️+</button>
+				<button class="btn-danger" x-on:click="deletedSelectedItem()">🗑️</button>
 			</div>
 
 			@* Cây thư mục *@
 			<div class="fm-folder-tree">
-				<li class="folder-level-0" style="list-style-type: none;" x-on:click="getAllInDir('', -1)">
+				<p class="folder-level-0" x-on:click="getAllInDir('', -1)">
 					<span>📂Thư mục gốc</span>
-				</li>
+				</p>
 				<template x-for="(f, idx) in _folderTree">
 					<ul>
 						<li :class="{...f.cssClass, selected: idx == _folderTreeSelectedIndex}" x-on:click="getAllInDir(f.fullPath, idx)">

@@ -12,6 +12,7 @@ namespace FileManager.Common
 
 		// Dùng trong trường hợp đổi tên/di chuyển file
 		protected string _secondaryValue;
+		protected IFormFile? _file;
 
 		public File_Manager(string rootPath, HttpRequest request)
 		{
@@ -19,6 +20,10 @@ namespace FileManager.Common
 			_command = request.Query["cmd"].ToString();
 			_value = request.Query["value"].ToString();
 			_secondaryValue = request.Query["secondaryValue"].ToString();
+			if(request.Method.ToUpper() == "POST")
+			{
+				_file = request.Form.Files["FILE_UPLOAD"];
+			}
 		}
 
 		public FMResponse ExecuteCmd()
@@ -48,6 +53,12 @@ namespace FileManager.Common
 					case "ADD_NEW_ITEM":
 						{
 							AddNewFolder(_value);
+							break;
+						}
+
+					case "UPLOAD":
+						{
+							UploadFile(_value);
 							break;
 						}
 					default:
@@ -142,7 +153,25 @@ namespace FileManager.Common
 				throw new Exception("Tên thư mục đã tồn tại");
 			}
 		}
-	}
+
+		protected void UploadFile(string folder)
+		{
+			if(_file is null)
+			{
+				throw new Exception("Không có file!!!");
+			}
+
+			// Tạo file mới, gắn thêm thời gian để không bị trừng
+			var filename = Path.GetFileNameWithoutExtension(_file.FileName)
+						+ DateTime.Now.Ticks
+						+ Path.GetExtension(_file.FileName);
+
+			var path = Path.Combine(_rootPath, folder, filename);
+			var stream = new FileStream(path, FileMode.CreateNew);
+			_file.CopyTo(stream);
+		}
+
+    }
 
 	public class FMResponse
 	{

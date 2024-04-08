@@ -90,10 +90,21 @@ $folder-level-step: 15px;
 
 .fm-folder-tree {
     ul {
-        margin: 5px;
+        margin-left: 15px;
 
         li {
             list-style-type: none;
+        }
+    }
+
+    .folder-level-0 {
+        cursor: pointer;
+        padding-top: 3px;
+        padding-bottom: 4px;
+
+        &:hover,
+        &.selected {
+            background-color: rgba(0, 0, 0, 0.4);
         }
     }
 
@@ -228,4 +239,14 @@ $folder-level-step: 15px;
 .btn-success:hover {
     background-color: green;
     color: white
+}
+
+.file {
+    color: white;
+    margin: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
 }
