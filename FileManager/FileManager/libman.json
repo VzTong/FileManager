@@ -5,6 +5,10 @@
     {
       "library": "alpinejs@3.13.5",
       "destination": "wwwroot/lib/alpinejs/"
+    },
+    {
+      "library": "tinymce@7.0.1",
+      "destination": "wwwroot/lib/tinymce/"
     }
   ]
 }

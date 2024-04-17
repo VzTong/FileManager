@@ -20,7 +20,7 @@ namespace FileManager.Common
 			_command = request.Query["cmd"].ToString();
 			_value = request.Query["value"].ToString();
 			_secondaryValue = request.Query["secondaryValue"].ToString();
-			if(request.Method.ToUpper() == "POST")
+			if (request.Method.ToUpper() == "POST")
 			{
 				_file = request.Form.Files["FILE_UPLOAD"];
 			}
@@ -59,6 +59,12 @@ namespace FileManager.Common
 					case "UPLOAD":
 						{
 							UploadFile(_value);
+							break;
+						}
+
+					case "RENAME":
+						{
+							Rename(_value, _secondaryValue);
 							break;
 						}
 					default:
@@ -156,7 +162,7 @@ namespace FileManager.Common
 
 		protected void UploadFile(string folder)
 		{
-			if(_file is null)
+			if (_file is null)
 			{
 				throw new Exception("Không có file!!!");
 			}
@@ -171,7 +177,46 @@ namespace FileManager.Common
 			_file.CopyTo(stream);
 		}
 
-    }
+		protected void Rename(string oldName, string NewName)
+		{
+			oldName = Path.Combine(_rootPath, oldName);
+			NewName = Path.Combine(_rootPath, NewName);
+
+			//Check thư mục có tồn tại hay ko
+			if (Directory.Exists(oldName))
+			{
+				// Check xem thư mục mới có tồn tại hay ko, nếu có thì đổi cũ => mới
+				if (!Directory.Exists(NewName))
+				{
+					Directory.Move(oldName, NewName);
+				}
+				else
+				{
+					throw new Exception($"Tên thư mục đã tồn tại");
+				}
+			}
+
+			//Check file có tồn tại hay ko
+			else if (File.Exists(oldName))
+			{
+				// Check xem file mới có tồn tại hay ko, nếu có thì đổi cũ => mới
+				if (!File.Exists(NewName))
+				{
+					File.Move(oldName, NewName);
+				}
+				else
+				{
+					throw new Exception($"Tên thư mục đã tồn tại");
+				}
+			}
+			else
+			{
+				throw new Exception($"Đương dẫn không hợp lệ!");
+			}
+
+		}
+
+	}
 
 	public class FMResponse
 	{

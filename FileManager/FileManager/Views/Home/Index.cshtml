@@ -7,6 +7,7 @@
 	<link rel="icon" href="~/folder-manager-32px.ico" type="image/x-icon" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 	<link href="~/lib/filemanager/css/filemanager.min.css" rel="stylesheet" asp-append-version="true" />
+	<link href="~/lib/tinymce/skins/content/default/content.min.css" rel="stylesheet" asp-append-version="true" />
 </head>
 <body x-data="filedata">
 
@@ -18,6 +19,7 @@
 				<input class="file" fm-file-upload type="file" />
 				<button class="btn-success" x-on:click="uploadFile()">👆Tải file lên</button>
 				<button class="btn-success" x-on:click="openFolderUpdinPopup()">🗂️+</button>
+				<button class="btn-infor" x-on:click="renameSelectedItem()">✍️ Đổi Tên</button>
 				<button class="btn-danger" x-on:click="deletedSelectedItem()">🗑️</button>
 			</div>
 
@@ -54,7 +56,7 @@
 			<div class="fm-folder-updin-popup" :class="{show: _folderUpdinPopup.show}">
 				<div class="popup-main">
 					<div> 
-						<label>Tên thư mục</label>
+						<label x-text="_folderUpdinPopup.lable">Tên thư mục</label>
 						<input class="form-control" type="text" x-model="_folderUpdinPopup.value" />
 					</div>
 					<div>
@@ -64,9 +66,40 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="tinymce-container" style="margin-top: 20px">
+			<textarea id="Content"></textarea>
+		</div>
 	</div>
 
 	<script defer src="~/lib/alpinejs/cdn.min.js"></script>
 	<script src="~/lib/filemanager/js/filemanager.js" asp-append-version="true"></script>
+	<script src="~/lib/tinymce/tinymce.min.js"></script>
+	
+	<script>
+		tinymce.init({
+			selector: '#Content',
+			height: 500,
+			plugins: [
+				'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+				'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+				'insertdatetime', 'media', 'table', 'help', 'wordcount'
+			],
+
+			file_picker_callback: (callback, value, meta) => {
+				// Provide image and alt text for the image dialog
+				if (meta.filetype == 'image') {
+					callback('myimage.jpg', { alt: 'My alt text' });
+				}
+			},
+
+			toolbar: 'undo redo | blocks | ' +
+				'bold italic backcolor | alignleft aligncenter ' +
+				'alignright alignjustify | bullist numlist outdent indent | ' +
+				'removeformat | help',
+			content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+		});
+
+	</script>
 </body>
 </html>

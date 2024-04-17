@@ -53,8 +53,16 @@ document.addEventListener("alpine:init", () => {
 
         _folderUpdinPopup: {
             show: false,
-            title: 'Thêm thư mục',
-            value: ''
+            lable: 'Tên thư mục',
+            value: '',
+            isRenameMode: false,
+        },
+
+        // Rename Data
+        _panelRenameSelectedData: {
+            folderName: '',
+            oldFolderName: '',
+            newFolderName: '',
         },
 
         init() {
@@ -188,6 +196,8 @@ document.addEventListener("alpine:init", () => {
             // Hiển thị popup và đặt giá trị mặc định
             this._folderUpdinPopup.show = true;
             this._folderUpdinPopup.value = 'NewFolder';
+            this._folderUpdinPopup.lable = 'Thêm thư mục';
+            this._folderUpdinPopup.isRenameMode = false;
         },
 
         closeFolderUpdinPopup() {
@@ -195,53 +205,106 @@ document.addEventListener("alpine:init", () => {
         },
 
         updinFolder() {
-            let i = this._folderTreeSelectedIndex;
-            let newFolderName = this._folderUpdinPopup.value;
-            let newFolderPath;
-            if (!newFolderName) {
-                alert("Chưa nhập tên thư mục");
-                return;
-            }
+            if (this._folderUpdinPopup.isRenameMode) {
 
-            if (i == -1) {
-                newFolderPath = newFolderName;
-                // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
-                this.closeFolderUpdinPopup();
+                let i = this._panelItemSelectedIndex;
+                let newName = this._folderUpdinPopup.value;
+                if (!newName) {
+                    alert("Không được để trống!");
+                    return;
+                }
+
+                // Mode Rename
+                let idxTree = this._folderTreeSelectedIndex;
+                let oldPath = this._panelData[i].path;
+                newName = this._folderTree[idxTree].fullPath + '\\' + newName;
+
+                this._setting.setParams("RENAME", oldPath, newName);
+                fetch(this._setting.getUrl())
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            // Thêm vào panel - ko cần reload
+                            var panelItem = {
+                                path: newName,
+                                name: this._folderUpdinPopup.value,
+                                isFolder: true
+                            };
+                            this._panelData.splice(i, 1, panelItem);
+
+                            //// Thêm vào cây thư mục - ko cần reload
+                            //var folderTreeItem = {
+                            //    fullPath: newName,
+                            //    level: this._folderTree[idxTree].level + 1,
+                            //    folderName: this._folderUpdinPopup.value,
+                            //    isOpen: false,
+                            //    cssClass: {
+                            //        [`folder-level-${this._folderTree[idxTree].level + 1}`]: true,
+                            //        show: this._folderTree[idxTree].isOpen,
+                            //    },
+                            //};
+                            //this._folderTree.splice(idxTree + 1, 1, folderTreeItem);
+
+                            // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
+                            this.closeFolderUpdinPopup();
+                        } else {
+                            alert(json.message);
+                        }
+                    })
+
             } else {
-                newFolderPath = this._folderTree[i].fullPath + "\\" + newFolderName;
+                // Mode create
+
+                let i = this._folderTreeSelectedIndex;
+                let newFolderName = this._folderUpdinPopup.value;
+                let newFolderPath;
+
+                if (!newFolderName) {
+                    alert("Chưa nhập tên thư mục");
+                    return;
+                }
+
+                if (i == -1) {
+                    newFolderPath = newFolderName;
+                    // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
+                    this.closeFolderUpdinPopup();
+                } else {
+                    newFolderPath = this._folderTree[i].fullPath + "\\" + newFolderName;
+                }
+                this._setting.setParams("ADD_NEW_ITEM", newFolderPath);
+                fetch(this._setting.getUrl())
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.success) {
+                            // Thêm vào panel - ko cần reload
+                            var panelItem = {
+                                path: newFolderPath,
+                                name: newFolderName,
+                                isFolder: true
+                            };
+                            this._panelData.unshift(panelItem);
+
+                            // Thêm vào cây thư mục - ko cần reload
+                            var folderTreeItem = {
+                                fullPath: newFolderPath,
+                                level: this._folderTree[i].level + 1,
+                                folderName: newFolderName,
+                                isOpen: false,
+                                cssClass: {
+                                    [`folder-level-${this._folderTree[i].level + 1}`]: true,
+                                    show: this._folderTree[i].isOpen,
+                                },
+                            };
+                            this._folderTree.splice(i + 1, 0, folderTreeItem);
+
+                            // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
+                            this.closeFolderUpdinPopup();
+                        } else {
+                            alert(json.message);
+                        }
+                    })
             }
-            this._setting.setParams("ADD_NEW_ITEM", newFolderPath);
-            fetch(this._setting.getUrl())
-                .then(res => res.json())
-                .then(json => {
-                    if (json.success) {
-                        // Thêm vào panel - ko cần reload
-                        var panelItem = {
-                            path: newFolderPath,
-                            name: newFolderName,
-                            isFolder: true
-                        };
-                        this._panelData.unshift(panelItem);
 
-                        // Thêm vào cây thư mục - ko cần reload
-                        var folderTreeItem = {
-                            fullPath: newFolderPath,
-                            level: this._folderTree[i].level + 1,
-                            folderName: newFolderName,
-                            isOpen: false,
-                            cssClass: {
-                                [`folder-level-${this._folderTree[i].level + 1}`]: true,
-                                show: this._folderTree[i].isOpen,
-                            },
-                        };
-                        this._folderTree.splice(i + 1, 0, folderTreeItem);
-
-                        // Gọi hàm đóng popup sau khi hoàn thành thêm thư mục
-                        this.closeFolderUpdinPopup();
-                    } else {
-                        alert(json.message);
-                    }
-                })
         },
 
         uploadFile() {
@@ -263,6 +326,27 @@ document.addEventListener("alpine:init", () => {
                 body: data
             })
                 .then(res => location.reload());
+        },
+
+        renameSelectedItem() {
+            let i = this._panelItemSelectedIndex;
+
+            if (i < 0 || !this._panelData[i]) {
+                alert("Chưa chọn file hoặc thư mục");
+                return;
+            }
+            this._folderUpdinPopup.show = true;
+            this._folderUpdinPopup.value = this._additionalInfo.selectedText;
+            this._panelRenameSelectedData.folderName = this._panelData[i].path;
+            this._panelRenameSelectedData.oldFolderName = this._panelData[i].name;
+
+            if (this._panelData[i].isFolder) {
+                this._folderUpdinPopup.lable = 'Tên thư mục';
+            } else {
+                this._folderUpdinPopup.lable = 'Tên file';
+            }
+
+            this._folderUpdinPopup.isRenameMode = true;
         }
     }))
 });
